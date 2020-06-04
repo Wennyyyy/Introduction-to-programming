@@ -1,27 +1,32 @@
 #include <iostream>
 #include <sstream>
 using namespace std;
-
 class Stats{
     private:
         string city;
         string monthYear;
-        double rainfall[30];
+        double *rainfall;
         int cnt;
         int most, least;
         const string month[12]={"January", "February", "March",
                                 "April", "May", "June", "July",
                                 "August","September","October",
                                 "November","December"
-                                };
+                                };                  
     public:
         Stats(string city, string monthYear){
             this -> city = city;
             this -> monthYear = monthYear;  
-            for(int i=0; i<30; i++) this -> rainfall[i] = 0;
+            this -> rainfall = new double[30];
+            for(int i=0; i<30; i++){
+                *(rainfall+i) = 0;
+            }
             this -> cnt = 0;
             this -> most = 0;
-            this -> least = 0;
+            this -> least = 0; 
+        }
+        ~Stats(){
+            delete [] rainfall;
         }
         double total(){
             double sum = 0;
@@ -54,40 +59,10 @@ class Stats{
             return M;
         }
         bool storeValue(double rainfall){
-            if (rainfall<0 || cnt>=30) return false;
+            if (rainfall<0 || cnt>30) return false;
             this->rainfall[this->cnt] = rainfall;
             cnt++;
             return true;
-        }
-        string convert(){
-            stringstream ss;
-            int monthnum;
-            
-            ss << this->monthYear.substr(4,2);
-            ss >> monthnum;
-            return this->month[monthnum] + ", " + this->monthYear.substr(0,4);
-        }
-
-        string convert(int cnt){
-            stringstream ss;
-            int monthnum, yearnum;
-            string yearstr;
-            
-            ss << this->monthYear.substr(4,2);
-            ss >> monthnum;
-            ss.clear();
-
-            ss << this->monthYear.substr(0,4);
-            ss >> yearnum;
-            ss.clear();
-
-            yearnum += (monthnum + cnt)/12;
-            monthnum = (monthnum + cnt)%12;
-
-            ss << yearnum;
-            ss >> yearstr;
-
-            return this->month[monthnum] + ", " + yearstr;
         }
         void selectionSort(int array[], int size, int cnt[]){
 	        int start, minIndex, minValue, minCNT;
@@ -108,7 +83,50 @@ class Stats{
                 cnt[start] = minCNT;
             }
         }
-
+        string displayDescending(){
+           string ret;
+            ret += " Rainfall Report Display by descending in " + this->city +" County : \n";
+            ret += "==================================================================\n";
+            int copyRainfall[this->cnt], cnt[this->cnt];
+            for(int i=0; i<this->cnt; i++){
+                copyRainfall[i] = this->rainfall[i];
+                cnt[i] = i;
+            }
+            selectionSort(copyRainfall,this->cnt, cnt);
+            for(int i=this->cnt-1; i >= 0; i--){
+                stringstream temp;
+                string strtemp;
+                temp<< copyRainfall[i];
+                temp>> strtemp;
+                temp.clear();
+                ret += convert(cnt[i])+"  Rainfall: "+ strtemp +"\n";
+            }
+            return ret;
+        }
+        string convert(){
+            stringstream ss;
+            int monthnum;
+            
+            ss << this->monthYear.substr(4,2);
+            ss >> monthnum;
+            return this->month[monthnum] + ", " + this->monthYear.substr(0,4);
+        }
+        string convert(int cnt){
+            stringstream ss;
+            int monthnum, yearnum;
+            string yearstr;
+            ss << this->monthYear.substr(4,2);
+            ss >> monthnum;
+            ss.clear();
+            ss << this->monthYear.substr(0,4);
+            ss >> yearnum;
+            ss.clear();
+            yearnum += (monthnum + cnt)/12;
+            monthnum = (monthnum + cnt)%12;
+            ss << yearnum;
+            ss >> yearstr;
+            return this->month[monthnum] + ", " + yearstr;
+        }
         string displayReport(){
             string ret;
             ret += this->convert() + " -" + this->convert(cnt) + " Rain Report for " + this->city +" County\n";
@@ -132,60 +150,6 @@ class Stats{
             ret += "The most rain fell in " + this->convert(most) + " with " + strtemp + " inches\n";
             return ret;
         }
-        string displayAscending(){
-            string ret;
-            ret += " Rainfall Report Display by ascending in " + this->city +" County : \n";
-            ret += "==================================================================\n";
-            int copyRainfall[this->cnt], cnt[this->cnt];
-            for(int i=0; i<this->cnt; i++){
-                copyRainfall[i] = this->rainfall[i];
-                cnt[i] = i;
-            }
-            selectionSort(copyRainfall,this->cnt, cnt);
-            for(int i=0; i<this->cnt; i++){
-                stringstream temp;
-                string strtemp;
-                temp<< copyRainfall[i];
-                temp>> strtemp;
-                temp.clear();
-                ret += convert(cnt[i])+"  Rainfall: "+ strtemp +"\n";
-            }
-            return ret;
-        }
-        string displayDescending(){
-           string ret;
-            ret += " Rainfall Report Display by descending in " + this->city +" County : \n";
-            ret += "==================================================================\n";
-            int copyRainfall[this->cnt], cnt[this->cnt];
-            for(int i=0; i<this->cnt; i++){
-                copyRainfall[i] = this->rainfall[i];
-                cnt[i] = i;
-            }
-            selectionSort(copyRainfall,this->cnt, cnt);
-            for(int i=this->cnt-1; i >= 0; i--){
-                stringstream temp;
-                string strtemp;
-                temp<< copyRainfall[i];
-                temp>> strtemp;
-                temp.clear();
-                ret += convert(cnt[i])+"  Rainfall: "+ strtemp +"\n";
-            }
-            return ret;
-        }
-        string displayTime(){
-            string ret;
-            ret += " Rainfall Report Display by time in " + this->city +" County : \n";
-            ret += "==================================================================\n";
-            for(int i=0; i<this->cnt; i++){
-                stringstream temp;
-                string strtemp;
-                temp<< rainfall[i];
-                temp>> strtemp;
-                temp.clear();
-                ret += convert(i)+"  Rainfall: "+ strtemp +"\n";
-            }
-            return ret;
-        }
 };
 int main (int argc, char* argv[]){
     string city,monthYear;
@@ -207,7 +171,6 @@ int main (int argc, char* argv[]){
             cin>>rainfall;
         }while(!stats.storeValue(rainfall));
         getline(cin,s);
-
         do{
             cout<<"Do u want to continue?\n";
             cout<<"Please enter Y/N only.\n";
@@ -216,9 +179,7 @@ int main (int argc, char* argv[]){
             else cont = 0;
         }while(s.size()>1 || (s[0] != 'Y' && s[0] != 'N'));
     }
-     
-    cout<<stats.displayAscending()<<endl;
-    cout<<stats.displayDescending()<<endl;
-    cout<<stats.displayTime()<<endl;
+    cout<<endl<<stats.displayReport()<<endl;
+    cout<<endl<<stats.displayDescending()<<endl;
     return 0;
 }

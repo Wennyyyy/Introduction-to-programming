@@ -1,8 +1,3 @@
-// 1) Money Donation (10%)
-// Modify Program Example in pptx pp.10-108 (the United Cause case study program)
-//so it can be used with any set of donations.
-//The program should dynamically allocate the donations array and ask the user to input its values.
-//Then modify the program so the arrPtr array is sorted in descending order instead of ascending order.
 #include <iostream>
 using namespace std;
 class DonationList{
@@ -27,7 +22,7 @@ DonationList::DonationList(int num, double gifts[]){
 		// Initialize the arrays
 		for (int count = 0; count < numDonations; count++)
 		{
-			donations[count] = gifts[count];
+			*(donations+count) = *(gifts+count);
 			this->arrPtr[count] = &donations[count];
 		}
 		// Now sort the array of pointers
@@ -40,17 +35,17 @@ void DonationList::selectSort(){
 	for (int scan = 0; scan < (numDonations - 1); scan++)
 	{
 		maxIndex = scan;
-		maxElem = arrPtr[scan];
+		maxElem = *(arrPtr+scan);
 		for(int i = scan + 1; i < numDonations; i++)
 		{
-			if (*(arrPtr[i]) > *maxElem)
+			if (*(arrPtr+i) > maxElem)
 			{
-				maxElem = arrPtr[i];
+				maxElem = *(arrPtr + i);
 				maxIndex = i;
 			}
 		}
-		arrPtr[maxIndex] = arrPtr[scan];
-		arrPtr[scan] = maxElem;
+		*(arrPtr+maxIndex) = *(arrPtr+scan);
+		*(arrPtr+scan) = maxElem;
 	}
 }
 void DonationList::show(){
@@ -74,15 +69,16 @@ DonationList::~DonationList(){
 int main(int argc, char * argv[]){
     double given[100];
     int i=0,len=0;
-    cout <<"enter donations: (0 means stop) ";
+    cout <<"Enter donations: (0 or not number means stop) \n";
     cin >> given[i];
     while(given[i] != 0){
             i++; cin >> given[i];
         }
     len = i;
     DonationList donationlist(len,given);
+	cout<<"ur input before sorting: \n";
     donationlist.show();
+	cout<<"ur input after sorting: \n";
     donationlist.showSorted();
     return 0;
 }
-

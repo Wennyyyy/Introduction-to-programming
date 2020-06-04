@@ -17,16 +17,16 @@ void selectSort(int num,int *scores){
 				minIndex = i;
 			}
 		}
-		scores[minIndex] = scores[scan];
+		*(scores + minIndex) = *(scores + scan);
 		*(scores+scan) = minElem;
 	}
 }
-int median(int a[], int n){
+int median(int *a, int n){
 	if(n % 2 !=0){
-		return a[n / 2];
+		return *(a+n / 2);
 	}
 	else
-		return (a[n / 2] + a[n / 2 - 1]) / 2;
+		return (*(a+n / 2) + *(a+n / 2 - 1)) / 2;
 }
 bool isNum(string str)  
 {  
@@ -41,11 +41,11 @@ bool isNum(string str)
 	}  
 	return true;  
 }
-int mode(int a[], int n){
+int mode(int *a, int n){
     int cnt = 0, maxcnt = 0,index = 0;
     for(int i = 0; i < n; i++){
         for(int j = 0; j < n; j++){
-            if (a[j] == a[i])
+            if (*(a+j) == *(a+i))
                 cnt++;
         }
         if(cnt > maxcnt){
@@ -54,7 +54,8 @@ int mode(int a[], int n){
         }
         cnt = 0;
     }
-    return a[index];
+    if(maxcnt == 1) return -1;
+    return *(a+index);
 }
 int main(int argc,char* argv[]){
     int * pies;
@@ -82,7 +83,7 @@ int main(int argc,char* argv[]){
                 break;
             }
             else{
-                pies[i] = myint;
+                *(pies+i) = myint;
                 break;
             }
         }while(myint >= 0 && isNum(input));
@@ -90,14 +91,17 @@ int main(int argc,char* argv[]){
     selectSort(30, pies);
     cout<<"\nThe pies people consumed after sorted: \n";
     for (int i = 0; i < 30; i++){
-        cout<<pies[i]<<" ";
+        cout<<*(pies + i)<<" ";
+        if(*(pies + i)<10) cout<<" ";
         if((i+1)%10 == 0){
             cout<<endl;
             i-1;
         }
     }
+    int Mode = mode(pies, 30);
     cout<<"The median of the pies: "<<median(pies, 30)<<endl;
-    cout<<"The mode of the pies: "<<mode(pies, 30)<<endl;
+    if (Mode == -1) cout<<"There is no mode.\n";
+    else cout<<"The mode of the pies: "<<mode(pies, 30)<<endl;
     delete[] pies;
     return 0;
 }

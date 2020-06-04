@@ -1,7 +1,21 @@
 #include <iostream>
 #include <iomanip>
 #include <ctype.h>
+#include <sstream>  
+#include <string>
 using namespace std;
+bool isNum(string str){  
+	stringstream sin(str);  
+	int d;  
+	char c;
+	if(!(sin >> d)){
+		return false;
+	}
+	if (sin >> c){
+		return false;
+	}  
+	return true;  
+}
 void selectSort(int num,double *scores){
 	int minIndex;
 	double minElem;
@@ -16,7 +30,7 @@ void selectSort(int num,double *scores){
 				minIndex = i;
 			}
 		}
-		scores[minIndex] = scores[scan];
+		*(scores+minIndex) = *(scores+scan);
 		*(scores+scan) = minElem;
 	}
 }
@@ -31,22 +45,50 @@ void show(int num,double *scoreArray){
 	cout << endl;
 }
 int main(int argc, char *argv[]){
-    int num=0;
+    int num=-1;
     double input=0;
-    cout<<"Please enter the number of scores. ";
-    cin>> num;
+    string sinput;
+    stringstream ss;
+    bool asknum = true;
+    while(num < 0){
+        ss.clear();
+        cout<<"Please input the number of scores u want to record."<<endl;
+        getline(cin,sinput);
+        stringstream ss(sinput);
+        if(ss >> num ) {
+            if(num > 0){
+                break;
+            }
+            else{
+            cout<<"You should input nonnegative number."<<endl;
+            num = -1;
+            }
+        }
+        else{
+            cout<<"You should input nonnegative number."<<endl;
+            num = -1;
+        }
+    }
+    ss.clear();
     double *scoreArray = new double[num];
     for (int i = 0; i < num; i++){
         do {
+            ss.clear();
             cout<<"Enter the score: ";
-            cin>> input;
-            if(input<0){
+            getline(cin,sinput);
+            ss << sinput;
+            ss >> input;
+            if(input < 0 || !isNum(sinput)){
                 i--;
                 cout<<"U should enter nonnegative number."<<endl;
+                ss.clear();
                 break;
             }
-            else scoreArray[i] = input;
-        }while(input >=0 && isdigit(input));
+            else{
+                *(scoreArray+i) = input;
+                break;
+            }
+        }while(input >=0 && isNum(sinput));
     }
     selectSort(num, scoreArray);
     double avg = average(scoreArray , num);
@@ -58,7 +100,7 @@ int main(int argc, char *argv[]){
             i-1;
         }
     } 
-    cout<<"\n\nAverages:"<<setw(20)<<right<<avg<<endl;
+    cout<<"\nAverages:"<<setw(20)<<right<<avg<<endl;
     delete  [] scoreArray;
     return 0;
 }
